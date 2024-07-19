@@ -36,25 +36,24 @@ pub fn module_declaration_ansi(m: RefNode, syntax_tree: &SyntaxTree, filepath: &
         ports: Vec::new(),
     };
 
-    let mut parent_stack = Vec::new();
-    let mut _entering = true;
+    let mut entering: bool;
 
     for event in m.into_iter().event() {
         let node = match event {
             NodeEvent::Enter(x) => {
-                parent_stack.push(x.to_string());
-                _entering = true;
+                entering = true;
                 x
             }
             NodeEvent::Leave(x) => {
-                parent_stack.pop();
-                _entering = false;
+                entering = false;
                 x
             }
         };
 
         if let RefNode::AnsiPortDeclaration(decl) = node {
-            ret.ports.push(port_declaration_ansi(decl, syntax_tree));
+            if entering {
+                ret.ports.push(port_declaration_ansi(decl, syntax_tree));
+            }
         }
     }
 

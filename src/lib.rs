@@ -55,5 +55,10 @@ fn sv_to_structure(
 /// This module is implemented in Rust.
 #[pymodule(name = "svdata")]
 fn my_extension(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(read_sv_file, m)?)
+    m.add_function(wrap_pyfunction!(read_sv_file, m)?)?;
+    m.add_class::<sv_data::SvData>()?;
+    m.add_class::<sv_port::SvPort>()?;
+    m.add_class::<sv_port::SvPortDirection>()?;
+    m.add_class::<sv_module::SvModule>()?;
+    Ok(())
 }
