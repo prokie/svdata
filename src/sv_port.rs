@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use sv_parser::{unwrap_node, RefNode, SyntaxTree};
+use sv_parser::{unwrap_node, PortDirection, RefNode, SyntaxTree};
 
 use crate::sv_misc::identifier;
 
@@ -56,12 +56,9 @@ fn port_identifier(node: &sv_parser::AnsiPortDeclaration, syntax_tree: &SyntaxTr
 fn port_direction_ansi(node: &sv_parser::AnsiPortDeclaration) -> SvPortDirection {
     let dir = unwrap_node!(node, PortDirection);
     match dir {
-        Some(RefNode::PortDirection(sv_parser::PortDirection::Inout(_))) => SvPortDirection::Inout,
-        Some(RefNode::PortDirection(sv_parser::PortDirection::Input(_))) => SvPortDirection::Input,
-        Some(RefNode::PortDirection(sv_parser::PortDirection::Output(_))) => {
-            SvPortDirection::Output
-        }
-        Some(RefNode::PortDirection(sv_parser::PortDirection::Ref(_))) => SvPortDirection::Ref,
+        Some(RefNode::PortDirection(PortDirection::Input(_))) => SvPortDirection::Input,
+        Some(RefNode::PortDirection(PortDirection::Output(_))) => SvPortDirection::Output,
+        Some(RefNode::PortDirection(PortDirection::Ref(_))) => SvPortDirection::Ref,
         _ => SvPortDirection::Inout,
     }
 }

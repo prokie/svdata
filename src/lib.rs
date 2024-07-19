@@ -39,8 +39,7 @@ fn sv_to_structure(
             NodeEvent::Leave(_) => false,
         };
         let node = match event {
-            NodeEvent::Enter(x) => x,
-            NodeEvent::Leave(x) => x,
+            NodeEvent::Leave(x) | NodeEvent::Enter(x) => x,
         };
 
         if enter_not_leave {
