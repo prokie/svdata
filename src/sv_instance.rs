@@ -16,6 +16,28 @@ pub struct SvInstance {
     pub connections: Vec<Vec<String>>,
 }
 
+#[pymethods]
+impl SvInstance {
+    #[new]
+    fn new() -> Self {
+        SvInstance {
+            module_identifier: String::new(),
+            hierarchical_instance: String::new(),
+            hierarchy: Vec::new(),
+            connections: Vec::new(),
+        }
+    }
+    fn __repr__(&self) -> String {
+        format!(
+            "SvInstance(module_identifier={}, hierarchical_instance={}, hierarchy={}, connections={})",
+            self.module_identifier,
+            self.hierarchical_instance,
+            self.hierarchy.len(),
+            self.connections.len()
+        )
+    }
+}
+
 pub fn module_instance(p: &sv_parser::ModuleInstantiation, syntax_tree: &SyntaxTree) -> SvInstance {
     SvInstance {
         module_identifier: inst_module_identifier(p, syntax_tree),

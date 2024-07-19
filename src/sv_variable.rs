@@ -18,6 +18,9 @@ impl SvVariable {
             identifier: String::new(),
         }
     }
+    fn __repr__(&self) -> String {
+        format!("SvVariable(identifier={})", self.identifier)
+    }
 }
 
 pub fn variable_declaration(

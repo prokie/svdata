@@ -17,4 +17,7 @@ impl SvData {
             modules: Vec::new(),
         }
     }
+    fn __repr__(&self) -> String {
+        format!("SvData(modules={})", self.modules.len())
+    }
 }

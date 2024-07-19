@@ -35,6 +35,17 @@ impl SvModule {
             instances: Vec::new(),
         }
     }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "SvModule(identifier={}, filepath={}, ports={}, variables={}, instances={})",
+            self.identifier,
+            self.filepath,
+            self.ports.len(),
+            self.variables.len(),
+            self.instances.len()
+        )
+    }
 }
 
 pub fn module_declaration_ansi(m: RefNode, syntax_tree: &SyntaxTree, filepath: &str) -> SvModule {
