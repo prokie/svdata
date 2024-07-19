@@ -29,4 +29,6 @@ class SvModule:
     ports: list[SvPort]
     variables: list[SvVariable]
 
+    def render(self) -> str: ...
+
 def read_sv_file(file_path: str) -> SvData: ...

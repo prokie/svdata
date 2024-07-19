@@ -1,7 +1,7 @@
-use pyo3::prelude::*;
-use sv_parser::{unwrap_node, PortDirection, RefNode, SyntaxTree};
-
 use crate::sv_misc::identifier;
+use pyo3::prelude::*;
+use std::fmt;
+use sv_parser::{unwrap_node, PortDirection, RefNode, SyntaxTree};
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass]
@@ -31,6 +31,18 @@ impl SvPortDirection {
             SvPortDirection::Output => "Output".to_string(),
             SvPortDirection::Ref => "Ref".to_string(),
             SvPortDirection::IMPLICIT => "IMPLICIT".to_string(),
+        }
+    }
+}
+
+impl fmt::Display for SvPortDirection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SvPortDirection::Inout => write!(f, "inout"),
+            SvPortDirection::Input => write!(f, "input"),
+            SvPortDirection::Output => write!(f, "output"),
+            SvPortDirection::Ref => write!(f, "ref"),
+            SvPortDirection::IMPLICIT => write!(f, "implicit"),
         }
     }
 }
