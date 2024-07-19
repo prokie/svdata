@@ -3,6 +3,7 @@ use sv_module::module_declaration_ansi;
 use sv_parser::{NodeEvent, RefNode};
 
 pub mod sv_data;
+pub mod sv_instance;
 pub mod sv_misc;
 pub mod sv_module;
 pub mod sv_port;

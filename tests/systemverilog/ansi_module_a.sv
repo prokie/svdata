@@ -5,5 +5,9 @@ module ansi_module_a (
 
   logic c;
   wire d;
+
+  ansi_module_b ansi_module_b_i (
+    .e(d)
+  );
   
 endmodule

@@ -3,6 +3,12 @@ from enum import Enum
 class SvVariable:
     identifier: str
 
+class SvInstance:
+    module_identifier: str
+    hierarchical_instance: str
+    hierarchy: list[str]
+    connections: list[list[str]]
+
 class SvPortDirection(Enum):
     Inout = "Inout"
     Input = "Input"

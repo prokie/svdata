@@ -21,7 +21,7 @@ impl SvVariable {
 }
 
 pub fn variable_declaration(
-    p: &sv_parser::NonPortModuleItem,
+    p: &sv_parser::ModuleCommonItem,
     syntax_tree: &SyntaxTree,
 ) -> SvVariable {
     SvVariable {
@@ -29,7 +29,7 @@ pub fn variable_declaration(
     }
 }
 
-fn variable_identifier(node: &sv_parser::NonPortModuleItem, syntax_tree: &SyntaxTree) -> String {
+fn variable_identifier(node: &sv_parser::ModuleCommonItem, syntax_tree: &SyntaxTree) -> String {
     if let Some(id) = unwrap_node!(node, VariableIdentifier) {
         identifier(id, syntax_tree).unwrap()
     } else if let Some(id) = unwrap_node!(node, NetIdentifier) {

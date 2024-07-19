@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 use sv_parser::{unwrap_node, NodeEvent, RefNode, SyntaxTree};
 
 use crate::{
+    sv_instance::{module_instance, SvInstance},
     sv_misc::identifier,
     sv_port::{port_declaration_ansi, SvPort},
     sv_variable::{variable_declaration, SvVariable},
@@ -18,6 +19,8 @@ pub struct SvModule {
     pub ports: Vec<SvPort>,
     #[pyo3(get, set)]
     pub variables: Vec<SvVariable>,
+    #[pyo3(get, set)]
+    pub instances: Vec<SvInstance>,
 }
 
 #[pymethods]
@@ -29,6 +32,7 @@ impl SvModule {
             filepath: String::new(),
             ports: Vec::new(),
             variables: Vec::new(),
+            instances: Vec::new(),
         }
     }
 }
@@ -39,6 +43,7 @@ pub fn module_declaration_ansi(m: RefNode, syntax_tree: &SyntaxTree, filepath: &
         filepath: filepath.to_string(),
         ports: Vec::new(),
         variables: Vec::new(),
+        instances: Vec::new(),
     };
     let mut entering: bool;
 
@@ -59,9 +64,12 @@ pub fn module_declaration_ansi(m: RefNode, syntax_tree: &SyntaxTree, filepath: &
                     let port = port_declaration_ansi(p, syntax_tree);
                     ret.ports.push(port);
                 }
-                RefNode::NonPortModuleItem(p) => {
+                RefNode::ModuleCommonItem(p) => {
                     let variable = variable_declaration(p, syntax_tree);
                     ret.variables.push(variable);
+                }
+                RefNode::ModuleInstantiation(p) => {
+                    ret.instances.push(module_instance(p, syntax_tree));
                 }
 
                 _ => (),
