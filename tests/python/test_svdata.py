@@ -11,3 +11,7 @@ def test_module_name() -> None:
 
     assert ansi_module_a.ports[1].identifier == "b"
     assert ansi_module_a.ports[1].direction == SvPortDirection.Input
+
+    assert ansi_module_a.variables[0].identifier == "c"
+
+    assert ansi_module_a.variables[1].identifier == "d"

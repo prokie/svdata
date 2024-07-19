@@ -6,7 +6,7 @@ pub mod sv_data;
 pub mod sv_misc;
 pub mod sv_module;
 pub mod sv_port;
-
+pub mod sv_variable;
 #[pyfunction]
 pub fn read_sv_file(file_path: &str) -> PyResult<sv_data::SvData> {
     let defines = std::collections::HashMap::new();
@@ -60,5 +60,6 @@ fn my_extension(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<sv_port::SvPort>()?;
     m.add_class::<sv_port::SvPortDirection>()?;
     m.add_class::<sv_module::SvModule>()?;
+    m.add_class::<sv_variable::SvVariable>()?;
     Ok(())
 }

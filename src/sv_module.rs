@@ -4,6 +4,7 @@ use sv_parser::{unwrap_node, NodeEvent, RefNode, SyntaxTree};
 use crate::{
     sv_misc::identifier,
     sv_port::{port_declaration_ansi, SvPort},
+    sv_variable::{variable_declaration, SvVariable},
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -15,6 +16,8 @@ pub struct SvModule {
     pub filepath: String,
     #[pyo3(get, set)]
     pub ports: Vec<SvPort>,
+    #[pyo3(get, set)]
+    pub variables: Vec<SvVariable>,
 }
 
 #[pymethods]
@@ -25,6 +28,7 @@ impl SvModule {
             identifier: String::new(),
             filepath: String::new(),
             ports: Vec::new(),
+            variables: Vec::new(),
         }
     }
 }
@@ -34,8 +38,8 @@ pub fn module_declaration_ansi(m: RefNode, syntax_tree: &SyntaxTree, filepath: &
         identifier: module_identifier(m.clone(), syntax_tree).unwrap(),
         filepath: filepath.to_string(),
         ports: Vec::new(),
+        variables: Vec::new(),
     };
-
     let mut entering: bool;
 
     for event in m.into_iter().event() {
@@ -49,14 +53,21 @@ pub fn module_declaration_ansi(m: RefNode, syntax_tree: &SyntaxTree, filepath: &
                 x
             }
         };
+        if entering {
+            match node {
+                RefNode::AnsiPortDeclaration(p) => {
+                    let port = port_declaration_ansi(p, syntax_tree);
+                    ret.ports.push(port);
+                }
+                RefNode::NonPortModuleItem(p) => {
+                    let variable = variable_declaration(p, syntax_tree);
+                    ret.variables.push(variable);
+                }
 
-        if let RefNode::AnsiPortDeclaration(decl) = node {
-            if entering {
-                ret.ports.push(port_declaration_ansi(decl, syntax_tree));
+                _ => (),
             }
         }
     }
-
     ret
 }
 

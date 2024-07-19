@@ -1,5 +1,8 @@
 from enum import Enum
 
+class SvVariable:
+    identifier: str
+
 class SvPortDirection(Enum):
     Inout = "Inout"
     Input = "Input"
@@ -18,5 +21,6 @@ class SvModule:
     identifier: str
     filepath: str
     ports: list[SvPort]
+    variables: list[SvVariable]
 
 def read_sv_file(file_path: str) -> SvData: ...
