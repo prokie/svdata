@@ -1,13 +1,16 @@
 use pyo3::prelude::*;
+use sv_module::module_declaration_ansi;
+use sv_parser::{NodeEvent, RefNode};
 
-pub mod svdata;
+pub mod sv_data;
+pub mod sv_module;
 
 #[pyfunction]
-pub fn read_sv_file(file_path: &str) -> PyResult<svdata::SvData> {
+pub fn read_sv_file(file_path: &str) -> PyResult<sv_data::SvData> {
     let defines = std::collections::HashMap::new();
     let includes: Vec<std::path::PathBuf> = Vec::new();
 
-    let mut svdata = svdata::SvData {
+    let mut svdata = sv_data::SvData {
         modules: Vec::new(),
     };
 
@@ -25,8 +28,29 @@ pub fn read_sv_file(file_path: &str) -> PyResult<svdata::SvData> {
 fn sv_to_structure(
     syntax_tree: &sv_parser::SyntaxTree,
     filepath: &str,
-    svdata: &mut svdata::SvData,
+    svdata: &mut sv_data::SvData,
 ) {
+    for event in syntax_tree.into_iter().event() {
+        let enter_not_leave = match event {
+            NodeEvent::Enter(_) => true,
+            NodeEvent::Leave(_) => false,
+        };
+        let node = match event {
+            NodeEvent::Enter(x) => x,
+            NodeEvent::Leave(x) => x,
+        };
+
+        if enter_not_leave {
+            match node {
+                RefNode::ModuleDeclarationAnsi(_) => {
+                    svdata
+                        .modules
+                        .push(module_declaration_ansi(node, syntax_tree, filepath).clone());
+                }
+                _ => (),
+            }
+        }
+    }
 }
 
 /// This module is implemented in Rust.

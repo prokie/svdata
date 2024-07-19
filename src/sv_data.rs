@@ -1,10 +1,12 @@
 use pyo3::prelude::*;
 
+use crate::sv_module::SvModule;
+
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass]
 pub struct SvData {
     #[pyo3(get, set)]
-    pub modules: Vec<String>,
+    pub modules: Vec<SvModule>,
 }
 
 #[pymethods]
