@@ -3,7 +3,9 @@ use sv_module::module_declaration_ansi;
 use sv_parser::{NodeEvent, RefNode};
 
 pub mod sv_data;
+pub mod sv_misc;
 pub mod sv_module;
+pub mod sv_port;
 
 #[pyfunction]
 pub fn read_sv_file(file_path: &str) -> PyResult<sv_data::SvData> {
@@ -41,13 +43,10 @@ fn sv_to_structure(
         };
 
         if enter_not_leave {
-            match node {
-                RefNode::ModuleDeclarationAnsi(_) => {
-                    svdata
-                        .modules
-                        .push(module_declaration_ansi(node, syntax_tree, filepath).clone());
-                }
-                _ => (),
+            if let RefNode::ModuleDeclarationAnsi(_) = node {
+                svdata
+                    .modules
+                    .push(module_declaration_ansi(node, syntax_tree, filepath).clone());
             }
         }
     }

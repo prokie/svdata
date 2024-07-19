@@ -1,5 +1,10 @@
 use pyo3::prelude::*;
-use sv_parser::{unwrap_node, RefNode, SyntaxTree};
+use sv_parser::{unwrap_node, NodeEvent, RefNode, SyntaxTree};
+
+use crate::{
+    sv_misc::identifier,
+    sv_port::{port_declaration_ansi, SvPort},
+};
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass]
@@ -8,6 +13,8 @@ pub struct SvModule {
     pub identifier: String,
     #[pyo3(get, set)]
     pub filepath: String,
+    #[pyo3(get, set)]
+    pub ports: Vec<SvPort>,
 }
 
 #[pymethods]
@@ -17,6 +24,7 @@ impl SvModule {
         SvModule {
             identifier: String::new(),
             filepath: String::new(),
+            ports: Vec::new(),
         }
     }
 }
@@ -24,8 +32,31 @@ impl SvModule {
 pub fn module_declaration_ansi(m: RefNode, syntax_tree: &SyntaxTree, filepath: &str) -> SvModule {
     let mut ret = SvModule {
         identifier: module_identifier(m.clone(), syntax_tree).unwrap(),
-        filepath: "".to_string(),
+        filepath: filepath.to_string(),
+        ports: Vec::new(),
     };
+
+    let mut parent_stack = Vec::new();
+    let mut _entering = true;
+
+    for event in m.into_iter().event() {
+        let node = match event {
+            NodeEvent::Enter(x) => {
+                parent_stack.push(x.to_string());
+                _entering = true;
+                x
+            }
+            NodeEvent::Leave(x) => {
+                parent_stack.pop();
+                _entering = false;
+                x
+            }
+        };
+
+        if let RefNode::AnsiPortDeclaration(decl) = node {
+            ret.ports.push(port_declaration_ansi(decl, syntax_tree));
+        }
+    }
 
     ret
 }
@@ -36,14 +67,4 @@ fn module_identifier(node: RefNode, syntax_tree: &SyntaxTree) -> Option<String> 
     } else {
         unreachable!()
     }
-}
-
-pub fn identifier(parent: RefNode, syntax_tree: &SyntaxTree) -> Option<String> {
-    let id = match unwrap_node!(parent, SimpleIdentifier, EscapedIdentifier) {
-        Some(RefNode::SimpleIdentifier(x)) => Some(x.nodes.0),
-        Some(RefNode::EscapedIdentifier(x)) => Some(x.nodes.0),
-        _ => None,
-    };
-
-    id.map(|x| syntax_tree.get_str(&x).unwrap().to_string())
 }
