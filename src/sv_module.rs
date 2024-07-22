@@ -29,13 +29,19 @@ pub struct SvModule {
 #[pymethods]
 impl SvModule {
     #[new]
-    fn new() -> Self {
+    fn new(
+        identifier: String,
+        filepath: String,
+        ports: Vec<SvPort>,
+        variables: Vec<SvVariable>,
+        instances: Vec<SvInstance>,
+    ) -> Self {
         SvModule {
-            identifier: String::new(),
-            filepath: String::new(),
-            ports: Vec::new(),
-            variables: Vec::new(),
-            instances: Vec::new(),
+            identifier,
+            filepath,
+            ports,
+            variables,
+            instances,
         }
     }
 

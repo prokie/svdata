@@ -13,10 +13,8 @@ pub struct SvVariable {
 #[pymethods]
 impl SvVariable {
     #[new]
-    fn new() -> Self {
-        SvVariable {
-            identifier: String::new(),
-        }
+    fn new(identifier: String) -> Self {
+        SvVariable { identifier }
     }
     fn __repr__(&self) -> String {
         format!("SvVariable(identifier={})", self.identifier)

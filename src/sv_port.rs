@@ -20,6 +20,24 @@ pub struct SvPort {
     pub unpacked_dimensions: Vec<SvUnpackedDimension>,
 }
 
+#[pymethods]
+impl SvPort {
+    #[new]
+    fn new(
+        identifier: String,
+        direction: SvPortDirection,
+        packed_dimensions: Vec<SvPackedDimension>,
+        unpacked_dimensions: Vec<SvUnpackedDimension>,
+    ) -> Self {
+        SvPort {
+            identifier,
+            direction,
+            packed_dimensions,
+            unpacked_dimensions,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum SvPortDirection {
