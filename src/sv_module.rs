@@ -46,14 +46,7 @@ impl SvModule {
     }
 
     fn __repr__(&self) -> String {
-        format!(
-            "SvModule(identifier={}, filepath={}, ports={}, variables={}, instances={})",
-            self.identifier,
-            self.filepath,
-            self.ports.len(),
-            self.variables.len(),
-            self.instances.len()
-        )
+        self.render().unwrap()
     }
     fn render_ports(&self) -> PyResult<String> {
         if self.ports.is_empty() {

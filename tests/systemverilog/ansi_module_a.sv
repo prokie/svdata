@@ -5,6 +5,7 @@ module ansi_module_a (
 
   logic c;
   wire  d;
+  logic [1:0] ponta[2:0];
 
   ansi_module_b ansi_module_b_i (.e(d));
 

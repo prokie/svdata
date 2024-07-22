@@ -17,7 +17,7 @@ mod tests {
         assert_eq!(module.ports[1].identifier, "b");
         assert_eq!(module.ports[1].direction, SvPortDirection::Input);
 
-        assert_eq!(module.variables.len(), 2);
+        assert_eq!(module.variables.len(), 3);
         assert_eq!(module.variables[0].identifier, "c");
         assert_eq!(module.variables[1].identifier, "d");
 

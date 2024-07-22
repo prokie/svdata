@@ -5,8 +5,8 @@ use crate::{
 };
 use pyo3::prelude::*;
 use std::fmt;
+use std::fmt::Write;
 use sv_parser::{unwrap_node, PortDirection, RefNode, SyntaxTree};
-
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass]
 pub struct SvPort {
@@ -35,6 +35,30 @@ impl SvPort {
             packed_dimensions,
             unpacked_dimensions,
         }
+    }
+
+    fn __repr__(&self) -> String {
+        let mut repr = self.direction.to_string();
+        write!(&mut repr, " logic ").unwrap();
+        for (dim1, dim2) in &self.packed_dimensions {
+            write!(&mut repr, "[{}:{}]", dim1.as_str(), dim2.as_str()).unwrap();
+        }
+
+        if self.packed_dimensions.is_empty() {
+            write!(&mut repr, "{}", self.identifier).unwrap();
+        } else {
+            write!(&mut repr, " {}", self.identifier).unwrap();
+        }
+
+        for (dim1, dim2) in &self.unpacked_dimensions {
+            let dim_str = match dim2 {
+                Some(d2) => format!("[{}:{}]", dim1.as_str(), d2.as_str()),
+                None => format!("[{}]", dim1.as_str()),
+            };
+
+            write!(&mut repr, "{}", dim_str).unwrap();
+        }
+        repr
     }
 }
 

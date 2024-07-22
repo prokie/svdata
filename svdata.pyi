@@ -5,8 +5,12 @@ SvUnpackedDimension = tuple[str, str | None]
 
 class SvVariable:
     identifier: str
+    variables: list[SvVariable]
+    instances: list[SvInstance]
 
-    def __init__(self, identifier: str) -> None: ...
+    def __init__(
+        self, identifier: str, variables: list[SvVariable], instances: list[SvInstance]
+    ) -> None: ...
 
 class SvInstance:
     module_identifier: str
