@@ -7,8 +7,11 @@ pub mod sv_data;
 pub mod sv_instance;
 pub mod sv_misc;
 pub mod sv_module;
+pub mod sv_packed_dimension;
 pub mod sv_port;
+pub mod sv_unpacked_dimension;
 pub mod sv_variable;
+
 #[pyfunction]
 pub fn read_sv_file(file_path: &str) -> PyResult<sv_data::SvData> {
     let defines = std::collections::HashMap::new();

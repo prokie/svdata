@@ -1,5 +1,8 @@
 from enum import Enum
 
+SvPackedDimension = tuple[str, str]
+SvUnpackedDimension = tuple[str, str | None]
+
 class SvVariable:
     identifier: str
 
@@ -22,6 +25,8 @@ class SvData:
 class SvPort:
     identifier: str
     direction: SvPortDirection
+    packed_dimensions: list[SvPackedDimension]
+    unpacked_dimensions: list[SvUnpackedDimension]
 
 class SvModule:
     identifier: str
