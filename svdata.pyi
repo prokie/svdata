@@ -23,15 +23,13 @@ class SvVariable:
 
 class SvInstance:
     module_identifier: str
-    hierarchical_instance: str
-    hierarchy: list[str]
+    instance_identifier: str
     connections: list[list[str]]
 
     def __init__(
         self,
         module_identifier: str,
-        hierarchical_instance: str,
-        hierarchy: list[str],
+        instance_identifier: str,
         connections: list[list[str]],
     ) -> None: ...
 

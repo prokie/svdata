@@ -27,3 +27,8 @@ def test_module_name() -> None:
 def test_inits() -> None:
     SvModule(identifier="bla", filepath="bla", ports=[], variables=[], instances=[])
     SvPort("", SvPortDirection.Input, [], [])
+
+
+def test_ansi_module_a_repr() -> None:
+    with open("tests/systemverilog/ansi_module_a.sv", "r") as file:
+        assert str(ansi_module_a) == file.read()

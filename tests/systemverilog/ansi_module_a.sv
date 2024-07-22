@@ -1,10 +1,10 @@
 module ansi_module_a (
-  input var logic a,
-  input var logic [1:0] b[2:0]
+  input logic a,
+  input logic [1:0] b[2:0]
 );
 
   logic c;
-  wire  d;
+  logic d;
   logic [1:0] ponta[2:0];
 
   ansi_module_b ansi_module_b_i (.e(d));
@@ -19,6 +19,5 @@ module ansi_module_a (
     .f(a),
     .g(b)
   );
-
 
 endmodule

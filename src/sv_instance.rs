@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use std::fmt;
 use sv_parser::{unwrap_node, RefNode, SyntaxTree};
 
 use crate::sv_misc::{get_string, identifier};
@@ -9,9 +10,7 @@ pub struct SvInstance {
     #[pyo3(get, set)]
     pub module_identifier: String,
     #[pyo3(get, set)]
-    pub hierarchical_instance: String,
-    #[pyo3(get, set)]
-    pub hierarchy: Vec<String>,
+    pub instance_identifier: String,
     #[pyo3(get, set)]
     pub connections: Vec<Vec<String>>,
 }
@@ -22,27 +21,57 @@ impl SvInstance {
     fn new() -> Self {
         SvInstance {
             module_identifier: String::new(),
-            hierarchical_instance: String::new(),
-            hierarchy: Vec::new(),
+            instance_identifier: String::new(),
             connections: Vec::new(),
         }
     }
     fn __repr__(&self) -> String {
-        format!(
-            "SvInstance(module_identifier={}, hierarchical_instance={}, hierarchy={}, connections={})",
-            self.module_identifier,
-            self.hierarchical_instance,
-            self.hierarchy.len(),
-            self.connections.len()
-        )
+        self.to_string()
+    }
+}
+
+impl fmt::Display for SvInstance {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "  {} {} (",
+            self.module_identifier, self.instance_identifier
+        )?;
+
+        if self.connections.len() > 1 {
+            writeln!(f)?;
+
+            for connection in &self.connections[..self.connections.len() - 1] {
+                writeln!(f, "    .{}({}),", connection[0], connection[1])?;
+            }
+
+            writeln!(
+                f,
+                "    .{}({})",
+                self.connections.last().unwrap()[0],
+                self.connections.last().unwrap()[1]
+            )?;
+            write!(f, "  );")?;
+        }
+
+        if self.connections.len() == 1 {
+            write!(
+                f,
+                ".{}({})",
+                self.connections.last().unwrap()[0],
+                self.connections.last().unwrap()[1]
+            )?;
+            write!(f, ");")?;
+        }
+
+        Ok(())
     }
 }
 
 pub fn module_instance(p: &sv_parser::ModuleInstantiation, syntax_tree: &SyntaxTree) -> SvInstance {
     SvInstance {
         module_identifier: inst_module_identifier(p, syntax_tree),
-        hierarchical_instance: inst_hierarchical_instance(p, syntax_tree),
-        hierarchy: inst_hierarchy(p, syntax_tree),
+        instance_identifier: inst_instance_identifier(p, syntax_tree),
         connections: inst_connections(p, syntax_tree),
     }
 }
@@ -57,7 +86,7 @@ fn inst_module_identifier(p: &sv_parser::ModuleInstantiation, syntax_tree: &Synt
 }
 
 // Find hierarchical instance for the instantiation
-fn inst_hierarchical_instance(
+fn inst_instance_identifier(
     p: &sv_parser::ModuleInstantiation,
     syntax_tree: &SyntaxTree,
 ) -> String {
@@ -66,30 +95,6 @@ fn inst_hierarchical_instance(
     } else {
         unreachable!()
     }
-}
-
-// Find hierarchy for the instantiation (only finds label for the time being)
-fn inst_hierarchy(p: &sv_parser::ModuleInstantiation, syntax_tree: &SyntaxTree) -> Vec<String> {
-    let mut ret: Vec<String> = Vec::new();
-
-    for node in syntax_tree {
-        if let RefNode::GenerateBlock(x) = node {
-            for instance in x {
-                if let RefNode::ModuleInstantiation(y) = instance {
-                    if y == p {
-                        if let Some(label) = unwrap_node!(node.clone(), GenerateBlockIdentifier) {
-                            let label = identifier(label, syntax_tree).unwrap();
-                            ret.push(label);
-                        } else {
-                            unreachable!()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    ret
 }
 
 // Finding connections for the instantiation
