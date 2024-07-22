@@ -65,5 +65,6 @@ fn my_extension(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<sv_port::SvPortDirection>()?;
     m.add_class::<sv_module::SvModule>()?;
     m.add_class::<sv_variable::SvVariable>()?;
+    m.add_class::<sv_instance::SvInstance>()?;
     Ok(())
 }
