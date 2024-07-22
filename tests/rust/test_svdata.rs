@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use svdata::{read_sv_file, sv_port::SvPortDirection};
+    use svdata::{read_sv_file, sv_port_direction::SvPortDirection};
 
     #[test]
     fn test_read_sv_file_success() {

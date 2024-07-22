@@ -9,6 +9,7 @@ pub mod sv_misc;
 pub mod sv_module;
 pub mod sv_packed_dimension;
 pub mod sv_port;
+pub mod sv_port_direction;
 pub mod sv_unpacked_dimension;
 pub mod sv_variable;
 
@@ -62,7 +63,7 @@ fn my_extension(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(read_sv_file, m)?)?;
     m.add_class::<sv_data::SvData>()?;
     m.add_class::<sv_port::SvPort>()?;
-    m.add_class::<sv_port::SvPortDirection>()?;
+    m.add_class::<sv_port_direction::SvPortDirection>()?;
     m.add_class::<sv_module::SvModule>()?;
     m.add_class::<sv_variable::SvVariable>()?;
     m.add_class::<sv_instance::SvInstance>()?;

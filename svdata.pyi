@@ -1,7 +1,16 @@
 from enum import Enum
 
-SvPackedDimension = tuple[str, str]
-SvUnpackedDimension = tuple[str, str | None]
+class SvPackedDimension:
+    left_bound: str
+    right_bound: str
+
+    def __init__(self, left_bound: str, right_bound: str) -> None: ...
+
+class SvUnpackedDimension:
+    left_bound: str
+    right_bound: str | None
+
+    def __init__(self, left_bound: str, right_bound: str | None) -> None: ...
 
 class SvVariable:
     identifier: str
@@ -65,6 +74,7 @@ class SvModule:
         filepath: str,
         ports: list[SvPort],
         variables: list[SvVariable],
+        instances: list[SvInstance],
     ) -> None: ...
     def render(self) -> str: ...
 

@@ -1,11 +1,11 @@
 use crate::{
     sv_misc::{get_string, identifier},
     sv_packed_dimension::SvPackedDimension,
+    sv_port_direction::SvPortDirection,
     sv_unpacked_dimension::SvUnpackedDimension,
 };
 use pyo3::prelude::*;
 use std::fmt;
-use std::fmt::Write;
 use sv_parser::{unwrap_node, PortDirection, RefNode, SyntaxTree};
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass]
@@ -38,62 +38,30 @@ impl SvPort {
     }
 
     fn __repr__(&self) -> String {
-        let mut repr = self.direction.to_string();
-        write!(&mut repr, " logic ").unwrap();
-        for (dim1, dim2) in &self.packed_dimensions {
-            write!(&mut repr, "[{}:{}]", dim1.as_str(), dim2.as_str()).unwrap();
+        self.to_string()
+    }
+}
+
+impl fmt::Display for SvPort {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.direction)?;
+
+        write!(f, " logic ")?;
+        for packed_dimension in &self.packed_dimensions {
+            write!(f, "{}", packed_dimension)?;
         }
 
         if self.packed_dimensions.is_empty() {
-            write!(&mut repr, "{}", self.identifier).unwrap();
+            write!(f, "{}", self.identifier)?;
         } else {
-            write!(&mut repr, " {}", self.identifier).unwrap();
+            write!(f, " {}", self.identifier)?;
         }
 
-        for (dim1, dim2) in &self.unpacked_dimensions {
-            let dim_str = match dim2 {
-                Some(d2) => format!("[{}:{}]", dim1.as_str(), d2.as_str()),
-                None => format!("[{}]", dim1.as_str()),
-            };
-
-            write!(&mut repr, "{}", dim_str).unwrap();
+        for unpacked_dimension in &self.unpacked_dimensions {
+            write!(f, "{}", unpacked_dimension)?;
         }
-        repr
-    }
-}
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum SvPortDirection {
-    Inout,
-    Input,
-    Output,
-    Ref,
-    IMPLICIT,
-}
-
-#[pymethods]
-impl SvPortDirection {
-    fn __repr__(&self) -> String {
-        match self {
-            SvPortDirection::Inout => "Inout".to_string(),
-            SvPortDirection::Input => "Input".to_string(),
-            SvPortDirection::Output => "Output".to_string(),
-            SvPortDirection::Ref => "Ref".to_string(),
-            SvPortDirection::IMPLICIT => "IMPLICIT".to_string(),
-        }
-    }
-}
-
-impl fmt::Display for SvPortDirection {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            SvPortDirection::Inout => write!(f, "inout"),
-            SvPortDirection::Input => write!(f, "input"),
-            SvPortDirection::Output => write!(f, "output"),
-            SvPortDirection::Ref => write!(f, "ref"),
-            SvPortDirection::IMPLICIT => write!(f, "implicit"),
-        }
+        Ok(())
     }
 }
 
@@ -138,10 +106,13 @@ pub fn port_packed_dimension_ansi(m: RefNode, syntax_tree: &SyntaxTree) -> Vec<S
             let range = unwrap_node!(x, ConstantRange);
             if let Some(RefNode::ConstantRange(sv_parser::ConstantRange { nodes })) = range {
                 let (l, _, r) = nodes;
-                let left = get_string(RefNode::ConstantExpression(l), syntax_tree).unwrap();
-                let right = get_string(RefNode::ConstantExpression(r), syntax_tree).unwrap();
+                let left_bound = get_string(RefNode::ConstantExpression(l), syntax_tree).unwrap();
+                let right_bound = get_string(RefNode::ConstantExpression(r), syntax_tree).unwrap();
 
-                ret.push((left, right));
+                ret.push(SvPackedDimension {
+                    left_bound,
+                    right_bound,
+                });
             }
         }
     }
@@ -161,17 +132,25 @@ pub fn port_unpacked_dimension_ansi(
                 let range = unwrap_node!(x, ConstantRange);
                 if let Some(RefNode::ConstantRange(sv_parser::ConstantRange { nodes })) = range {
                     let (l, _, r) = nodes;
-                    let left = get_string(RefNode::ConstantExpression(l), syntax_tree).unwrap();
-                    let right = get_string(RefNode::ConstantExpression(r), syntax_tree).unwrap();
+                    let left_bound =
+                        get_string(RefNode::ConstantExpression(l), syntax_tree).unwrap();
+                    let right_bound =
+                        get_string(RefNode::ConstantExpression(r), syntax_tree).unwrap();
 
-                    ret.push((left, Some(right)));
+                    ret.push(SvUnpackedDimension {
+                        left_bound,
+                        right_bound: Some(right_bound),
+                    });
                 }
             }
             RefNode::UnpackedDimensionExpression(x) => {
                 let range = unwrap_node!(x, ConstantExpression).unwrap();
-                let left = get_string(range, syntax_tree).unwrap();
+                let left_bound = get_string(range, syntax_tree).unwrap();
 
-                ret.push((left, None));
+                ret.push(SvUnpackedDimension {
+                    left_bound,
+                    right_bound: None,
+                });
             }
             _ => (),
         }

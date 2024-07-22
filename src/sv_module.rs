@@ -1,15 +1,15 @@
 use std::collections::HashMap;
 
-use pyo3::prelude::*;
-use sv_parser::{unwrap_node, NodeEvent, RefNode, SyntaxTree};
-use tinytemplate::TinyTemplate;
-
 use crate::{
     sv_instance::{module_instance, SvInstance},
     sv_misc::identifier,
     sv_port::{port_declaration_ansi, SvPort},
     sv_variable::{variable_declaration, SvVariable},
 };
+use pyo3::prelude::*;
+use std::fmt;
+use sv_parser::{unwrap_node, NodeEvent, RefNode, SyntaxTree};
+use tinytemplate::TinyTemplate;
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass]
@@ -24,6 +24,12 @@ pub struct SvModule {
     pub variables: Vec<SvVariable>,
     #[pyo3(get, set)]
     pub instances: Vec<SvInstance>,
+}
+
+impl fmt::Display for SvModule {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.render().unwrap())
+    }
 }
 
 #[pymethods]

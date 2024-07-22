@@ -12,10 +12,10 @@ def test_module_name() -> None:
 
     assert ansi_module_a.ports[1].identifier == "b"
     assert ansi_module_a.ports[1].direction == SvPortDirection.Input
-    assert ansi_module_a.ports[1].unpacked_dimensions[0][0] == "2"
-    assert ansi_module_a.ports[1].unpacked_dimensions[0][1] == "0"
-    assert ansi_module_a.ports[1].packed_dimensions[0][0] == "1"
-    assert ansi_module_a.ports[1].packed_dimensions[0][1] == "0"
+    assert ansi_module_a.ports[1].unpacked_dimensions[0].left_bound == "2"
+    assert ansi_module_a.ports[1].unpacked_dimensions[0].right_bound == "0"
+    assert ansi_module_a.ports[1].packed_dimensions[0].left_bound == "1"
+    assert ansi_module_a.ports[1].packed_dimensions[0].right_bound == "0"
     assert str(ansi_module_a.ports[1]) == "input logic [1:0] b[2:0]"
 
     assert ansi_module_a.variables[0].identifier == "c"
