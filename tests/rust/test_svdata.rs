@@ -47,7 +47,5 @@ mod tests {
         let result = read_sv_file("tests/systemverilog/ansi_module_b.sv");
         assert!(result.is_ok());
         let sv_data = result.unwrap();
-
-        dbg!(&sv_data);
     }
 }

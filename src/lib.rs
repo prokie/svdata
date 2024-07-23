@@ -39,8 +39,6 @@ fn sv_to_structure(
     filepath: &str,
     svdata: &mut sv_data::SvData,
 ) {
-    dbg!(&syntax_tree);
-
     for event in syntax_tree.into_iter().event() {
         let enter_not_leave = match event {
             NodeEvent::Enter(_) => true,
