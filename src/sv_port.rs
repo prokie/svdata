@@ -46,7 +46,12 @@ impl fmt::Display for SvPort {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.direction)?;
 
-        write!(f, " logic ")?;
+        if self.direction == SvPortDirection::Inout {
+            write!(f, " wire ")?;
+        } else {
+            write!(f, " logic ")?;
+        }
+
         for packed_dimension in &self.packed_dimensions {
             write!(f, "{}", packed_dimension)?;
         }
