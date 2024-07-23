@@ -1,4 +1,4 @@
-from svdata import SvModule, SvPort, SvPortDirection, read_sv_file
+from svdata import SvInstance, SvModule, SvPort, SvPortDirection, read_sv_file
 
 ansi_module_a = read_sv_file("tests/systemverilog/ansi_module_a.sv").modules[0]
 ansi_module_b = read_sv_file("tests/systemverilog/ansi_module_b.sv").modules[0]
@@ -28,6 +28,7 @@ def test_module_name() -> None:
 
 def test_inits() -> None:
     SvModule(identifier="bla", filepath="bla", ports=[], variables=[], instances=[])
+    SvInstance("bla", "bla", [])
     SvPort("", SvPortDirection.Input, [], [])
 
 

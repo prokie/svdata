@@ -18,11 +18,15 @@ pub struct SvInstance {
 #[pymethods]
 impl SvInstance {
     #[new]
-    fn new() -> Self {
+    fn new(
+        module_identifier: String,
+        instance_identifier: String,
+        connections: Vec<Vec<String>>,
+    ) -> Self {
         SvInstance {
-            module_identifier: String::new(),
-            instance_identifier: String::new(),
-            connections: Vec::new(),
+            module_identifier,
+            instance_identifier,
+            connections,
         }
     }
     fn __repr__(&self) -> String {
