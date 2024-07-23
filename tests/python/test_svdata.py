@@ -1,6 +1,8 @@
 from svdata import SvModule, SvPort, SvPortDirection, read_sv_file
 
 ansi_module_a = read_sv_file("tests/systemverilog/ansi_module_a.sv").modules[0]
+ansi_module_b = read_sv_file("tests/systemverilog/ansi_module_b.sv").modules[0]
+ansi_module_c = read_sv_file("tests/systemverilog/ansi_module_c.sv").modules[0]
 
 
 def test_module_name() -> None:
@@ -32,3 +34,9 @@ def test_inits() -> None:
 def test_ansi_module_a_repr() -> None:
     with open("tests/systemverilog/ansi_module_a.sv", "r") as file:
         assert str(ansi_module_a) == file.read()
+
+    with open("tests/systemverilog/ansi_module_b.sv", "r") as file:
+        assert str(ansi_module_b) == file.read()
+
+    with open("tests/systemverilog/ansi_module_c.sv", "r") as file:
+        assert str(ansi_module_c) == file.read()

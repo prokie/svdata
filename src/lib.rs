@@ -7,6 +7,7 @@ pub mod sv_data;
 pub mod sv_instance;
 pub mod sv_misc;
 pub mod sv_module;
+pub mod sv_net_type;
 pub mod sv_packed_dimension;
 pub mod sv_port;
 pub mod sv_port_direction;
@@ -38,6 +39,8 @@ fn sv_to_structure(
     filepath: &str,
     svdata: &mut sv_data::SvData,
 ) {
+    dbg!(&syntax_tree);
+
     for event in syntax_tree.into_iter().event() {
         let enter_not_leave = match event {
             NodeEvent::Enter(_) => true,

@@ -25,14 +25,20 @@ pub struct SvModule {
 
 impl fmt::Display for SvModule {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "module {} (", self.identifier)?;
+        write!(f, "module {}", self.identifier)?;
 
-        for port in &self.ports[..self.ports.len() - 1] {
-            writeln!(f, "  {},", port)?;
+        if self.ports.is_empty() {
+            writeln!(f, ";\n")?;
+        } else {
+            writeln!(f, " (")?;
+
+            for port in &self.ports[..self.ports.len() - 1] {
+                writeln!(f, "  {},", port)?;
+            }
+            writeln!(f, "  {}", self.ports.last().unwrap())?;
+
+            writeln!(f, ");\n")?;
         }
-        writeln!(f, "  {}", self.ports.last().unwrap())?;
-
-        writeln!(f, ");\n")?;
 
         for variable in &self.variables {
             writeln!(f, "  {}", variable)?;

@@ -34,4 +34,20 @@ mod tests {
         let result = read_sv_file("non_existent_file.sv");
         assert!(result.is_err());
     }
+
+    #[test]
+    fn test_sv_port_direction() {
+        assert_eq!(SvPortDirection::Input.to_string(), "input");
+        assert_eq!(SvPortDirection::Output.to_string(), "output");
+        assert_eq!(SvPortDirection::Inout.to_string(), "inout");
+    }
+
+    #[test]
+    fn test_wire_logic_variable() {
+        let result = read_sv_file("tests/systemverilog/ansi_module_b.sv");
+        assert!(result.is_ok());
+        let sv_data = result.unwrap();
+
+        dbg!(&sv_data);
+    }
 }
