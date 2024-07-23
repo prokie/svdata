@@ -20,4 +20,6 @@ module ansi_module_a (
     .g(b)
   );
 
+  ansi_module_d ansi_module_d_i ();
+
 endmodule

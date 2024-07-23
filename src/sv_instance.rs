@@ -1,4 +1,5 @@
 use pyo3::prelude::*;
+use std::cmp::Ordering;
 use std::fmt;
 use sv_parser::{unwrap_node, RefNode, SyntaxTree};
 
@@ -42,30 +43,34 @@ impl fmt::Display for SvInstance {
             self.module_identifier, self.instance_identifier
         )?;
 
-        if self.connections.len() > 1 {
-            writeln!(f)?;
+        match self.connections.len().cmp(&1) {
+            Ordering::Greater => {
+                writeln!(f)?;
 
-            for connection in &self.connections[..self.connections.len() - 1] {
-                writeln!(f, "    .{}({}),", connection[0], connection[1])?;
+                for connection in &self.connections[..self.connections.len() - 1] {
+                    writeln!(f, "    .{}({}),", connection[0], connection[1])?;
+                }
+
+                writeln!(
+                    f,
+                    "    .{}({})",
+                    self.connections.last().unwrap()[0],
+                    self.connections.last().unwrap()[1]
+                )?;
+                write!(f, "  );")?;
             }
-
-            writeln!(
-                f,
-                "    .{}({})",
-                self.connections.last().unwrap()[0],
-                self.connections.last().unwrap()[1]
-            )?;
-            write!(f, "  );")?;
-        }
-
-        if self.connections.len() == 1 {
-            write!(
-                f,
-                ".{}({})",
-                self.connections.last().unwrap()[0],
-                self.connections.last().unwrap()[1]
-            )?;
-            write!(f, ");")?;
+            Ordering::Equal => {
+                write!(
+                    f,
+                    ".{}({})",
+                    self.connections.last().unwrap()[0],
+                    self.connections.last().unwrap()[1]
+                )?;
+                write!(f, ");")?;
+            }
+            Ordering::Less => {
+                write!(f, ");")?;
+            }
         }
 
         Ok(())
