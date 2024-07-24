@@ -373,7 +373,7 @@ dependencies = [
 
 [[package]]
 name = "svdata"
-version = "0.0.11"
+version = "0.0.12"
 dependencies = [
  "pyo3",
  "sv-parser",

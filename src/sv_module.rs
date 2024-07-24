@@ -76,6 +76,10 @@ impl SvModule {
     fn __repr__(&self) -> String {
         self.to_string()
     }
+
+    fn add_variable(&mut self, variable: SvVariable) {
+        self.variables.push(variable);
+    }
 }
 
 pub fn module_declaration_ansi(m: RefNode, syntax_tree: &SyntaxTree, filepath: &str) -> SvModule {

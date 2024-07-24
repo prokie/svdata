@@ -33,6 +33,10 @@ impl SvInstance {
     fn __repr__(&self) -> String {
         self.to_string()
     }
+
+    fn add_connection(&mut self, connection: Vec<String>) {
+        self.connections.push(connection);
+    }
 }
 
 impl fmt::Display for SvInstance {

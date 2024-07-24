@@ -41,3 +41,10 @@ def test_ansi_module_a_repr() -> None:
 
     with open("tests/systemverilog/ansi_module_c.sv", "r") as file:
         assert str(ansi_module_c) == file.read()
+
+
+def test_add_connection() -> None:
+    instance = SvInstance("bla", "bla", [])
+    assert instance.connections == []
+    instance.add_connection(["asd", "asd"])
+    assert instance.connections == [["asd", "asd"]]
