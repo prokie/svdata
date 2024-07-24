@@ -80,6 +80,13 @@ impl SvModule {
     fn add_variable(&mut self, variable: SvVariable) {
         self.variables.push(variable);
     }
+
+    fn add_instance(&mut self, instance: SvInstance) {
+        self.instances.push(instance);
+    }
+    fn add_port(&mut self, port: SvPort) {
+        self.ports.push(port);
+    }
 }
 
 pub fn module_declaration_ansi(m: RefNode, syntax_tree: &SyntaxTree, filepath: &str) -> SvModule {
