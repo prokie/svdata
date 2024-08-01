@@ -1,5 +1,5 @@
 module ansi_module_b (
-  input logic hej
+  input var logic hej
 );
 
   logic a;

@@ -1,6 +1,6 @@
 module ansi_module_a (
-  input logic a,
-  input logic [1:0] b[2:0]
+  input tri logic a,
+  input var logic [1:0] b[2:0]
 );
 
   logic c;

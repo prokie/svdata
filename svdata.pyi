@@ -45,6 +45,21 @@ class SvPortDirection(Enum):
     Ref = "Ref"
     IMPLICIT = "IMPLICIT"
 
+class SvNetType(Enum):
+    Wire = "Wire"
+    Uwire = "Uwire"
+    Tri = "Tri"
+    Wor = "Wor"
+    Wand = "Wand"
+    Triand = "Triand"
+    Trior = "Trior"
+    Trireg = "Trireg"
+    Tri0 = "Tri0"
+    Tri1 = "Tri1"
+    Supply0 = "Supply0"
+    Supply1 = "Supply1"
+    IMPLICIT = "IMPLICIT"
+
 class SvData:
     modules: Sequence[SvModule]
 
@@ -55,6 +70,7 @@ class SvPort:
     direction: SvPortDirection
     packed_dimensions: Sequence[SvPackedDimension]
     unpacked_dimensions: Sequence[SvUnpackedDimension]
+    net_type: SvNetType | None
 
     def __init__(
         self,

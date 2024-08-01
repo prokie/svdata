@@ -98,6 +98,7 @@ pub fn module_declaration_ansi(m: RefNode, syntax_tree: &SyntaxTree, filepath: &
         instances: Vec::new(),
     };
     let mut entering: bool;
+    let mut previous_port: Option<SvPort> = None;
 
     for event in m.into_iter().event() {
         let node = match event {
@@ -113,7 +114,9 @@ pub fn module_declaration_ansi(m: RefNode, syntax_tree: &SyntaxTree, filepath: &
         if entering {
             match node {
                 RefNode::AnsiPortDeclaration(p) => {
-                    let port = port_declaration_ansi(p, syntax_tree);
+                    let parsed_port: SvPort = port_declaration_ansi(p, syntax_tree, &previous_port);
+                    previous_port = Some(parsed_port);
+                    let port = port_declaration_ansi(p, syntax_tree, &previous_port);
                     ret.ports.push(port);
                 }
                 RefNode::ModuleCommonItem(p) => {

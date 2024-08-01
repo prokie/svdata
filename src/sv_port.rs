@@ -1,12 +1,13 @@
 use crate::{
     sv_misc::{get_string, identifier},
+    sv_net_type::SvNetType,
     sv_packed_dimension::SvPackedDimension,
     sv_port_direction::SvPortDirection,
     sv_unpacked_dimension::SvUnpackedDimension,
 };
 use pyo3::prelude::*;
 use std::fmt;
-use sv_parser::{unwrap_node, PortDirection, RefNode, SyntaxTree};
+use sv_parser::{unwrap_node, RefNode, SyntaxTree};
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass]
 pub struct SvPort {
@@ -15,6 +16,8 @@ pub struct SvPort {
     #[pyo3(get, set)]
     pub direction: SvPortDirection,
     #[pyo3(get, set)]
+    pub net_type: Option<SvNetType>,
+    #[pyo3(get, set)]
     pub packed_dimensions: Vec<SvPackedDimension>,
     #[pyo3(get, set)]
     pub unpacked_dimensions: Vec<SvUnpackedDimension>,
@@ -22,18 +25,21 @@ pub struct SvPort {
 
 #[pymethods]
 impl SvPort {
+    #[pyo3(signature = (identifier, direction, packed_dimensions, unpacked_dimensions, net_type=None))]
     #[new]
     fn new(
         identifier: String,
         direction: SvPortDirection,
         packed_dimensions: Vec<SvPackedDimension>,
         unpacked_dimensions: Vec<SvUnpackedDimension>,
+        net_type: Option<SvNetType>,
     ) -> Self {
         SvPort {
             identifier,
             direction,
             packed_dimensions,
             unpacked_dimensions,
+            net_type,
         }
     }
 
@@ -46,10 +52,10 @@ impl fmt::Display for SvPort {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.direction)?;
 
-        if self.direction == SvPortDirection::Inout {
-            write!(f, " wire ")?;
+        if self.net_type.is_none() {
+            write!(f, " var logic ")?;
         } else {
-            write!(f, " logic ")?;
+            write!(f, " tri logic ")?;
         }
 
         for packed_dimension in &self.packed_dimensions {
@@ -73,15 +79,36 @@ impl fmt::Display for SvPort {
 pub fn port_declaration_ansi(
     p: &sv_parser::AnsiPortDeclaration,
     syntax_tree: &SyntaxTree,
+    previous_port: &Option<SvPort>,
 ) -> SvPort {
-    SvPort {
-        identifier: port_identifier(p, syntax_tree),
-        direction: port_direction_ansi(p),
-        packed_dimensions: port_packed_dimension_ansi(RefNode::AnsiPortDeclaration(p), syntax_tree),
-        unpacked_dimensions: port_unpacked_dimension_ansi(
-            RefNode::AnsiPortDeclaration(p),
-            syntax_tree,
-        ),
+    let inherit = port_check_inheritance_ansi(p, previous_port);
+
+    if inherit {
+        let previous_port = previous_port.clone().unwrap();
+        SvPort {
+            identifier: port_identifier(p, syntax_tree),
+            direction: previous_port.direction,
+            net_type: previous_port.net_type,
+            packed_dimensions: previous_port.packed_dimensions,
+            unpacked_dimensions: port_unpacked_dimension_ansi(
+                RefNode::AnsiPortDeclaration(p),
+                syntax_tree,
+            ),
+        }
+    } else {
+        SvPort {
+            identifier: port_identifier(p, syntax_tree),
+            direction: port_direction_ansi(p, previous_port),
+            packed_dimensions: port_packed_dimension_ansi(
+                RefNode::AnsiPortDeclaration(p),
+                syntax_tree,
+            ),
+            net_type: port_net_type_ansi(p, &port_direction_ansi(p, previous_port)),
+            unpacked_dimensions: port_unpacked_dimension_ansi(
+                RefNode::AnsiPortDeclaration(p),
+                syntax_tree,
+            ),
+        }
     }
 }
 
@@ -93,16 +120,24 @@ fn port_identifier(node: &sv_parser::AnsiPortDeclaration, syntax_tree: &SyntaxTr
     }
 }
 
-fn port_direction_ansi(node: &sv_parser::AnsiPortDeclaration) -> SvPortDirection {
+fn port_direction_ansi(
+    node: &sv_parser::AnsiPortDeclaration,
+    previous_port: &Option<SvPort>,
+) -> SvPortDirection {
     let dir = unwrap_node!(node, PortDirection);
     match dir {
-        Some(RefNode::PortDirection(PortDirection::Input(_))) => SvPortDirection::Input,
-        Some(RefNode::PortDirection(PortDirection::Output(_))) => SvPortDirection::Output,
-        Some(RefNode::PortDirection(PortDirection::Ref(_))) => SvPortDirection::Ref,
-        _ => SvPortDirection::Inout,
+        Some(RefNode::PortDirection(sv_parser::PortDirection::Inout(_))) => SvPortDirection::Inout,
+        Some(RefNode::PortDirection(sv_parser::PortDirection::Input(_))) => SvPortDirection::Input,
+        Some(RefNode::PortDirection(sv_parser::PortDirection::Output(_))) => {
+            SvPortDirection::Output
+        }
+        Some(RefNode::PortDirection(sv_parser::PortDirection::Ref(_))) => SvPortDirection::Ref,
+        _ => match previous_port {
+            Some(_) => previous_port.clone().unwrap().direction,
+            None => SvPortDirection::Inout,
+        },
     }
 }
-
 pub fn port_packed_dimension_ansi(m: RefNode, syntax_tree: &SyntaxTree) -> Vec<SvPackedDimension> {
     let mut ret: Vec<SvPackedDimension> = Vec::new();
 
@@ -162,4 +197,72 @@ pub fn port_unpacked_dimension_ansi(
     }
 
     ret
+}
+fn port_net_type_ansi(
+    m: &sv_parser::AnsiPortDeclaration,
+    direction: &SvPortDirection,
+) -> Option<SvNetType> {
+    let objecttype = unwrap_node!(m, AnsiPortDeclarationVariable, AnsiPortDeclarationNet);
+    match objecttype {
+        Some(RefNode::AnsiPortDeclarationVariable(_)) => {
+            match unwrap_node!(m, PortDirection, DataType, Signing, PackedDimension) {
+                Some(_) => None,
+                _ => Some(SvNetType::Wire),
+            }
+        }
+
+        Some(RefNode::AnsiPortDeclarationNet(x)) => {
+            let nettype = unwrap_node!(x, NetType);
+
+            match nettype {
+                // "Var" token was not found
+                Some(RefNode::NetType(sv_parser::NetType::Supply0(_))) => Some(SvNetType::Supply0),
+                Some(RefNode::NetType(sv_parser::NetType::Supply1(_))) => Some(SvNetType::Supply1),
+                Some(RefNode::NetType(sv_parser::NetType::Triand(_))) => Some(SvNetType::Triand),
+                Some(RefNode::NetType(sv_parser::NetType::Trior(_))) => Some(SvNetType::Trior),
+                Some(RefNode::NetType(sv_parser::NetType::Trireg(_))) => Some(SvNetType::Trireg),
+                Some(RefNode::NetType(sv_parser::NetType::Tri0(_))) => Some(SvNetType::Tri0),
+                Some(RefNode::NetType(sv_parser::NetType::Tri1(_))) => Some(SvNetType::Tri1),
+                Some(RefNode::NetType(sv_parser::NetType::Tri(_))) => Some(SvNetType::Tri),
+                Some(RefNode::NetType(sv_parser::NetType::Uwire(_))) => Some(SvNetType::Uwire),
+                Some(RefNode::NetType(sv_parser::NetType::Wire(_))) => Some(SvNetType::Wire),
+                Some(RefNode::NetType(sv_parser::NetType::Wand(_))) => Some(SvNetType::Wand),
+                Some(RefNode::NetType(sv_parser::NetType::Wor(_))) => Some(SvNetType::Wor),
+
+                _ => match direction {
+                    SvPortDirection::Inout | SvPortDirection::Input => Some(SvNetType::Wire),
+                    SvPortDirection::Output => match unwrap_node!(m, DataType) {
+                        Some(_) => None,
+                        _ => Some(SvNetType::Wire),
+                    },
+
+                    SvPortDirection::Ref => None,
+
+                    _ => unreachable!(),
+                },
+            }
+        }
+
+        _ => unreachable!(),
+    }
+}
+
+fn port_check_inheritance_ansi(
+    m: &sv_parser::AnsiPortDeclaration,
+    previous_port: &Option<SvPort>,
+) -> bool {
+    let datatype = unwrap_node!(
+        m,
+        DataType,
+        Signing,
+        NetType,
+        VarDataType,
+        PortDirection,
+        PackedDimension
+    );
+
+    match previous_port {
+        Some(_) => datatype.is_none(),
+        None => false,
+    }
 }

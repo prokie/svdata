@@ -10,7 +10,7 @@ def test_module_name() -> None:
 
     assert ansi_module_a.ports[0].identifier == "a"
     assert ansi_module_a.ports[0].direction == SvPortDirection.Input
-    assert str(ansi_module_a.ports[0]) == "input logic a"
+    assert str(ansi_module_a.ports[0]) == "input tri logic a"
 
     assert ansi_module_a.ports[1].identifier == "b"
     assert ansi_module_a.ports[1].direction == SvPortDirection.Input
@@ -18,7 +18,7 @@ def test_module_name() -> None:
     assert ansi_module_a.ports[1].unpacked_dimensions[0].right_bound == "0"
     assert ansi_module_a.ports[1].packed_dimensions[0].left_bound == "1"
     assert ansi_module_a.ports[1].packed_dimensions[0].right_bound == "0"
-    assert str(ansi_module_a.ports[1]) == "input logic [1:0] b[2:0]"
+    assert str(ansi_module_a.ports[1]) == "input var logic [1:0] b[2:0]"
 
     assert ansi_module_a.variables[0].identifier == "c"
 
